@@ -1,0 +1,174 @@
+version: '3'
+services:
+  test-unit:
+    build: ..
+    entrypoint: /codecept/node_modules/.bin/mocha
+    command: test/unit
+    working_dir: /codecept
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+  test-runner:
+    image: node:12.13-slim
+    entrypoint: /codecept/node_modules/.bin/mocha
+    command: test/runner
+    working_dir: /codecept
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+  test-helpers:
+    build: ..
+    entrypoint: /codecept/node_modules/.bin/mocha --invert --fgrep Appium
+    command: test/helper
+    working_dir: /codecept
+    env_file: .env
+    depends_on:
+      - selenium.chrome
+      - php
+      - json_server
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+  test-rest:
+    build: ..
+    entrypoint: /codecept/node_modules/.bin/mocha
+    command: test/rest
+    working_dir: /codecept
+    env_file: .env
+    depends_on:
+      - json_server
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+  test-graphql:
+    build: ..
+    entrypoint: /codecept/node_modules/.bin/mocha
+    command: test/graphql
+    working_dir: /codecept
+    env_file: .env
+    depends_on:
+      - json_server-graphql
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+  test-runner:
+    build: ..
+    entrypoint: /codecept/node_modules/.bin/mocha
+    command: test/runner
+    working_dir: /codecept
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+  test-acceptance.webdriverio:
+    build: ..
+    env_file: .env
+    environment:
+      - CODECEPT_ARGS=-c codecept.WebDriver.js --grep @WebDriverIO --debug
+    depends_on:
+      - php
+      - selenium.chrome
+    volumes:
+      - ./acceptance:/tests
+      - ./data:/data
+      - ./support:/support
+      - node_modules:/node_modules
+
+  test-acceptance.nightmare:
+    build: ..
+    env_file: .env
+    environment:
+      - CODECEPT_ARGS=-c codecept.Nightmare.js --grep @Nightmare
+    depends_on:
+      - php
+      - selenium.chrome
+    volumes:
+      - ./acceptance:/tests
+      - ./data:/data
+      - ./support:/support
+      - node_modules:/node_modules
+
+  test-acceptance.puppeteer:
+    build: ..
+    env_file: .env
+    environment:
+      - CODECEPT_ARGS=-c codecept.Puppeteer.js --grep @Puppeteer
+    depends_on:
+      - php
+    volumes:
+      - ./acceptance:/tests
+      - ./data:/data
+      - ./support:/support
+      - node_modules:/node_modules
+
+  test-acceptance.testcafe:
+    build: ..
+    env_file: .env
+    environment:
+      # TODO Add a testcafe tag
+      - CODECEPT_ARGS=-c codecept.Testcafe.js --grep @Puppeteer
+    depends_on:
+      - php
+    volumes:
+      - ./acceptance:/tests
+      - ./data:/data
+      - ./support:/support
+      - node_modules:/node_modules
+
+  test-acceptance.protractor:
+    build: ..
+    env_file: .env
+    environment:
+      - CODECEPT_ARGS=-c codecept.Protractor.js --grep @Protractor --verbose
+    depends_on:
+      - php
+      - selenium.chrome
+    volumes:
+      - ./acceptance:/tests
+      - ./data:/data
+      - ./support:/support
+      - node_modules:/node_modules
+
+  selenium.chrome:
+    image: selenium/standalone-chrome:3.141.59-oxygen
+    shm_size: 2g
+    ports:
+      - 4444:4444
+
+  php:
+    image: php:7.0
+    command: php -S 0.0.0.0:8000 -t /test/data/app
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/test
+
+  json_server:
+    build: ..
+    entrypoint: []
+    command: npm run json-server
+    working_dir: /codecept
+    expose:
+      - 8010
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+  json_server-graphql:
+    build: ..
+    entrypoint: []
+    command: npm run json-server:graphql
+    working_dir: /codecept
+    expose:
+      - 8020
+    volumes:
+      - ..:/codecept
+      - node_modules:/codecept/node_modules
+
+volumes:
+  node_modules:
