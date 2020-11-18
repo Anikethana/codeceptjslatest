@@ -49,8 +49,8 @@ RUN mkdir /tests
 WORKDIR /tests
 
 # Allow to pass argument to codecept run via env variable
-ENV CODECEPT_ARGS=""
-ENV RUN_MULTIPLE=false
+ENV CODECEPT_ARGS="--debug"
+ENV RUN_MULTIPLE=true
 ENV NO_OF_WORKERS=""
 
 # Set HOST ENV variable for Selenium Server
