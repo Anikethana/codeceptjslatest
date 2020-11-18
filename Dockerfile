@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y wget --no-install-recommends \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
-    && apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
+    && apt-get install -y google-chrome-unstable \
       --no-install-recommends \
     && apt-get install -y libgbm1 \
     && rm -rf /var/lib/apt/lists/* \
@@ -49,7 +49,7 @@ RUN mkdir /tests
 WORKDIR /tests
 
 # Allow to pass argument to codecept run via env variable
-ENV CODECEPT_ARGS="--debug"
+ENV CODECEPT_ARGS=""
 ENV RUN_MULTIPLE=false
 ENV NO_OF_WORKERS=""
 
